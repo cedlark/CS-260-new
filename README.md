@@ -1,4 +1,4 @@
-# Your startup name here
+# TacoBaco
 
 [My Notes](notes.md)
 
@@ -26,11 +26,11 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 ### Elevator pitch
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+I am making a website that lets friends review different taco shops, where only their friends are able to see them. It will be in a social media style where you can post after a visit and it will stay with that specific store. As you visit shops the color of it changes, and if one of you friends visits a shop it also changes to a different color. This way you can see where you and your friends have been, get reviews you trust more, and make funny reviews using inside jokes.
 
 ### Design
 
-![Design image](placeholder.png)
+![Design image](design.jpg)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
@@ -43,20 +43,21 @@ sequenceDiagram
 
 ### Key features
 
-- Describe your key feature
-- Describe your key feature
-- Describe your key feature
+- Main page with google maps embedded into it so you can see the taco shops around you.
+- Friends page where you can see your friends recent reviews
+- Page where you can add friends
+- Page where you can review the restaurants
 
 ### Technologies
 
 I am going to use the required technologies in the following ways.
 
-- **HTML** - Description here
-- **CSS** - Description here
-- **React** - Description here
-- **Service** - Description here
-- **DB/Login** - Description here
-- **WebSocket** - Description here
+- **HTML** - Structuring the main page and the other pages so that it is easily navigable.
+- **CSS** - Styling and making the page look good
+- **React** - Helps to move around the page, interact with other people, and find new friends.
+- **Service** - Having the user profile and storing their friends and restaurants. There is a login, logout, and register page. As well it opens google maps so that you can see where the taco shops are on the maps.
+- **DB/Login** - The account is stored along with all of their friends and reviews
+- **WebSocket** - The reviews and friend requests that other people send that you then recieve
 
 ## 🚀 AWS deliverable
 
