@@ -46,21 +46,21 @@ I am going to use the required technologies in the following ways.
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] **Server deployed and accessible with custom domain name** - [My server link](https://yourdomainnamehere.click).
+- [x] **Server deployed and accessible with custom domain name** - [My server link](https://yourdomainnamehere.click).
 
 ## 🚀 HTML deliverable
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] **HTML pages** - I did not complete this part of the deliverable.
-- [ ] **Proper HTML element usage** - I did not complete this part of the deliverable.
-- [ ] **Links** - I did not complete this part of the deliverable.
-- [ ] **Text** - I did not complete this part of the deliverable.
-- [ ] **3rd party API placeholder** - I did not complete this part of the deliverable.
-- [ ] **Images** - I did not complete this part of the deliverable.
-- [ ] **Login placeholder** - I did not complete this part of the deliverable.
-- [ ] **DB data placeholder** - I did not complete this part of the deliverable.
-- [ ] **WebSocket placeholder** - I did not complete this part of the deliverable.
+- [x] **HTML pages** - Made 4 html pages
+- [x] **Proper HTML element usage** - Used body and divs to seperate different parts
+- [x] **Links** - Links to the other pages and to images
+- [x] **Text** - Wrote text to show where things where
+- [x] **3rd party API placeholder** - Put the google maps image in place of where the map will be
+- [x] **Images** - Added multiple images
+- [x] **Login placeholder** - Have a place to log in and create an account.
+- [x] **DB data placeholder** - Have a place for your posts to be saved and your friends to be saved and come to you.
+- [x] **WebSocket placeholder** - Have a place for your posts to be saved and your friends to be saved and come to you.
 
 ## 🚀 CSS deliverable
 
