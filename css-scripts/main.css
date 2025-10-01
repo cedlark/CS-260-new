@@ -1,41 +1,30 @@
 header {
-    flex: 0 80px;
+    background-color: #5C2D73 !important;
 }
-footer {
-    flex: 0 30px;
-}
-menu {
-    flex: 1;
-    display: flex;
-    /*  overwrite Bootstrap so the menu does not wrap */
-    flex-direction: row !important;
-    list-style: none;
-  }
 
+footer {
+    background-color: #5C2D73;
+}
+  
   main {
-    flex: 1 calc(100vh - 110px);
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center; /* centers login + text */
+    text-align: center;
   }
-
+  
   .navbar-brand {
     padding-left: 0.3em;
     border-bottom: solid rgb(182, 182, 182) thin;
   }
   
-  menu .nav-item {
-    padding: 0 0.3em;
-  }
-  footer {
-    flex: 0 30px;
-  }
-
+  /* Footer GitHub link aligned right */
   footer a {
     float: right;
   }
-
+  
   @media (max-height: 600px) {
     header {
       display: none;
