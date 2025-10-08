@@ -11,15 +11,20 @@
   </head>
   <body class="d-flex flex-column min-vh-100 bg-light text-dark">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark w-100">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark w-100">
           <div class="container-fluid">
             <a class="navbar-brand fw-bold text-white" href="#">Taco Baco</a>
-            <ul class="navbar-nav me-auto d-flex flex-row gap-3">
-              <li class="nav-item"><a class="nav-link text-white" href="index.html">Activity</a></li>
-              <li class="nav-item"><a class="nav-link text-white" href="friends.html">Friends</a></li>
-              <li class="nav-item"><a class="nav-link text-white" href="post.html">Make A Post</a></li>
-              <li class="nav-item"><a class="nav-link text-white" href="map.html">Map</a></li>
-            </ul>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link text-white" href="index.html">Activity</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="friends.html">Friends</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="post.html">Make A Post</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="map.html">Map</a></li>
+              </ul>
             <span class="text-white">Hello Username</span>
           </div>
         </nav>
