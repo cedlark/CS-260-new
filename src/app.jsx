@@ -27,7 +27,7 @@ export default function App() {
               <div className="collapse navbar-collapse" id="navbarNav">
                 <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                   <li className="nav-item">
-                    <NavLink className='nav-link' to='login'>Login</NavLink>
+                    <NavLink className='nav-link' to="">Login</NavLink>
                   </li>
                   <li className="nav-item">
                     <NavLink className='nav-link' to='friends'>Friends</NavLink>
@@ -46,7 +46,7 @@ export default function App() {
         </header>
   
         <Routes>
-        <Route path='/login' element={<Login />} exact />
+        <Route path='/' element={<Login />} exact />
         <Route path='/friends' element={<Friends />} />
         <Route path='/post' element={<Post />} />
         <Route path='/map' element={<Map />} />
@@ -67,6 +67,6 @@ export default function App() {
     );
   }
   function NotFound() {
-    return <main className="container-fluid bg-secondary text-center">404: Return to sender. Address unknown.</main>;
+    return <main className="container-fluid text-center">404: Return to sender. Address unknown.</main>;
   }
   
