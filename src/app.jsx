@@ -46,10 +46,10 @@ export default function App() {
         </header>
   
         <Routes>
-        <Route path='/' element={<Login />} exact />
-        <Route path='/play' element={<Friends />} />
-        <Route path='/scores' element={<Post />} />
-        <Route path='/about' element={<Map />} />
+        <Route path='/login' element={<Login />} exact />
+        <Route path='/friends' element={<Friends />} />
+        <Route path='/post' element={<Post />} />
+        <Route path='/map' element={<Map />} />
         <Route path='*' element={<NotFound />} />
         </Routes>
        
