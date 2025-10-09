@@ -54,7 +54,7 @@ export default function App() {
         </Routes>
        
   
-        <footer className="bg-dark text-white-50 text-center py-3 mt-auto">
+        <footer className="text-white-50 text-center py-3 mt-auto">
           <div className="container-fluid">
             <span>Ricky Stephens</span><br />
             <a className="text-white" href="https://github.com/cedlark/CS-260-new.git">

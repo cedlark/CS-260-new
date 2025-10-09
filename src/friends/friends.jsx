@@ -3,7 +3,7 @@ import './friends.css'
 
 export function Friends() {
   return (
-    <main className="container-fluid bg-secondary text-center">
+    <main className="container-fluid text-center">
       <button id = "newFriend" onclick="foo()">Find New Friends</button>
       <p>
         
