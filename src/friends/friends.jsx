@@ -28,13 +28,26 @@ export function Friends() {
         Find New Friends
       </button>
 
-      <p>Here you can see all of your current friends:</p>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {friends.map((f) => (
-          <li key={f}>{f}</li>
-        ))}
-        {friends.length === 0 && <li>No friends yet 😢</li>}
-      </ul>
+      <h2>Friends Posts</h2>
+      {friends.length === 0 ? (
+        <p>No friends yet 😢</p>
+      ) : (
+        <div style={{ marginTop: "20px" }}>
+          {friends.map((f) => (
+            <div
+              key={f}
+              style={{
+                border: "1px dashed gray",
+                padding: "10px",
+                borderRadius: "8px",
+                marginBottom: "10px",
+              }}
+            >
+              <strong>{f}</strong>'s post will appear here.
+            </div>
+          ))}
+        </div>
+      )}
 
       {showPopup && (
         <div className="popup">
@@ -45,10 +58,19 @@ export function Friends() {
               placeholder="Enter username..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              style={{ width: "100%", marginBottom: "10px" }}
             />
             <ul style={{ textAlign: "left", maxHeight: "150px", overflowY: "auto", padding: 0 }}>
               {filteredUsers.map((u) => (
-                <li key={u} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                <li
+                  key={u}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "8px",
+                  }}
+                >
                   <span>{u}</span>
                   <button
                     onClick={() => addFriend(u)}
