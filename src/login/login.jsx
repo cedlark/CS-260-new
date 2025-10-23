@@ -5,20 +5,21 @@ export function Login() {
     <main className="container-fluid text-center">
       <h1>Welcome to Taco Baco</h1>
         <form method="get" action="play.html" class="w-25">
-          <div class="mb-3 input-group">
-            <span class="input-group-text">@</span>
-            <input type="text" class="form-control" placeholder="your@email.com" />
-          </div>
-          <div class="mb-3 input-group">
-            <span class="input-group-text">🔒</span>
-            <input type="password" class="form-control" placeholder="password" />
-          </div>
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-dark w-50">Login</button>
-            <button type="submit" class="btn btn-secondary w-50">Create</button>
-          </div>
+            <div>
+                {authState !== AuthState.Unknown && <h1>Welcome to Simon</h1>}
+                {authState === AuthState.Authenticated && (
+                <Authenticated userName={userName} onLogout={() => onAuthChange(userName, AuthState.Unauthenticated)} />
+                )}
+                {authState === AuthState.Unauthenticated && (
+                <Unauthenticated
+                    userName={userName}
+                    onLogin={(loginUserName) => {
+                    onAuthChange(loginUserName, AuthState.Authenticated);
+                    }}
+                />
+                )}
+            </div>
         </form>
-        <p>After you log in your friends posts go here</p>
     </main>
   );
 }
