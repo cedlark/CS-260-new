@@ -4,7 +4,7 @@ export function Login() {
   return (
     <main className="container-fluid text-center">
       <h1>Welcome to Taco Baco</h1>
-        <form method="get" action="play.html" class="w-25">
+        <form method="get" action="index.html" class="w-25">
           <div class="mb-3 input-group">
             <span class="input-group-text">@</span>
             <input type="text" class="form-control" placeholder="your@email.com" />
