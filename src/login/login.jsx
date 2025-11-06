@@ -5,12 +5,18 @@ import { Unauthenticated } from './unauthenticated';
 
 export function Login({ setUserName }) {
   const navigate = useNavigate();
-  const [authState, setAuthState] = React.useState(AuthState.Unknown);
-  const [userName, setUserName] = React.useState(localStorage.getItem('userName') || '');
 
-  function onAuthChange(userName, newState) {
-    setUserName(userName);
+  const [authState, setAuthState] = React.useState(AuthState.Unknown);
+  const [userName, setUserNameLocal] = React.useState(localStorage.getItem('userName') || '');
+
+  function onAuthChange(loginUserName, newState) {
+    setUserNameLocal(loginUserName);
     setAuthState(newState);
+
+    if (typeof setUserName === 'function') {
+      setUserName(loginUserName);
+    }
+
     if (newState === AuthState.Authenticated) {
       navigate('/friends');
     }
@@ -30,20 +36,9 @@ export function Login({ setUserName }) {
 
       {authState === AuthState.Unauthenticated && (
         <Unauthenticated
-        userName={userName}
-        onLogin={(loginUserName) => {
-          localStorage.setItem('userName', loginUserName);
-      
-          if (typeof setUserName === 'function') {
-            setUserName(loginUserName);
-          } else {
-            window.dispatchEvent(new Event('storage'));
-          }
-      
-          navigate('/friends'); 
-        }}
-      />
-      
+          userName={userName}
+          onLogin={(loginUserName) => onAuthChange(loginUserName, AuthState.Authenticated)}
+        />
       )}
 
       {authState === AuthState.Authenticated && (

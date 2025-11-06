@@ -7,6 +7,25 @@ import { Friends } from './friends/friends';
 import { Map } from './map/map';
 import { Post } from './post/post';
 
+import { useNavigate } from 'react-router-dom';
+
+function LogoutButton({ setUserName }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    fetch('/api/auth/logout', { method: 'DELETE' }).catch(() => {});
+    localStorage.removeItem('userName');
+    setUserName('');
+    navigate('/'); 
+  };
+
+  return (
+    <button className="btn btn-outline-light ms-2" onClick={handleLogout}>
+      Logout
+    </button>
+  );
+}
+
 export default function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
   useEffect(() => {
@@ -20,6 +39,8 @@ export default function App() {
   const preventIfLoggedOut = (e) => {
     if (!userName) e.preventDefault();
   };
+
+  const navigate = useNavigate();
 
   return (
     <BrowserRouter>
@@ -41,17 +62,7 @@ export default function App() {
                 <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                   <li className="nav-item">
                     {userName ? (
-                      <button
-                      className="btn btn-outline-light ms-2"
-                      onClick={() => {
-                        fetch('/api/auth/logout', { method: 'DELETE' }).catch(() => {});
-                        localStorage.removeItem('userName');
-                        setUserName(''); // ✅ immediately update React state
-                      }}
-                    >
-                      Logout
-                    </button>
-                    
+                      <LogoutButton setUserName={setUserName} />
                     ) : (
                       <NavLink className="nav-link" to="/">Login</NavLink>
                     )}
@@ -61,7 +72,7 @@ export default function App() {
                     <NavLink
                       className={`nav-link ${!userName ? 'disabled' : ''}`}
                       to={userName ? '/friends' : '#'}
-                      onClick={preventIfLoggedOut}
+                      onClick={(e) => { if (!userName) e.preventDefault(); }}
                     >
                       Friends
                     </NavLink>
@@ -71,7 +82,7 @@ export default function App() {
                     <NavLink
                       className={`nav-link ${!userName ? 'disabled' : ''}`}
                       to={userName ? '/post' : '#'}
-                      onClick={preventIfLoggedOut}
+                      onClick={(e) => { if (!userName) e.preventDefault(); }}
                     >
                       Post
                     </NavLink>
@@ -81,7 +92,7 @@ export default function App() {
                     <NavLink
                       className={`nav-link ${!userName ? 'disabled' : ''}`}
                       to={userName ? '/map' : '#'}
-                      onClick={preventIfLoggedOut}
+                      onClick={(e) => { if (!userName) e.preventDefault(); }}
                     >
                       Map
                     </NavLink>
