@@ -13,17 +13,19 @@ export function Login() {
     <main className="container-fluid text-center">
       <h1>Welcome to Taco Baco</h1>
       <form onSubmit={handleLogin} className="w-25 mx-auto">
-        <div className="mb-3 input-group">
-          <span className="input-group-text">@</span>
-          <input type="text" className="form-control" placeholder="your@email.com" required />
-        </div>
-        <div className="mb-3 input-group">
-          <span className="input-group-text">🔒</span>
-          <input type="password" className="form-control" placeholder="password" required />
-        </div>
-        <div className="d-flex gap-2">
-          <button type="submit" className="btn btn-dark w-50">Login</button>
-          <button type="button" className="btn btn-secondary w-50">Create</button>
+        <div>
+          {authState !== AuthState.Unknown && <h1>Welcome to Simon</h1>}
+          {authState === AuthState.Authenticated && (
+            <Authenticated userName={userName} onLogout={() => onAuthChange(userName, AuthState.Unauthenticated)} />
+          )}
+          {authState === AuthState.Unauthenticated && (
+            <Unauthenticated
+              userName={userName}
+              onLogin={(loginUserName) => {
+                onAuthChange(loginUserName, AuthState.Authenticated);
+              }}
+            />
+          )}
         </div>
       </form>
       <p>After you log in, your friends' posts go here.</p>
