@@ -42,15 +42,16 @@ export default function App() {
                   <li className="nav-item">
                     {userName ? (
                       <button
-                        className="btn btn-outline-light ms-2"
-                        onClick={() => {
-                          localStorage.removeItem('userName');
-                          fetch('/api/auth/logout', { method: 'DELETE' }).catch(() => {});
-                          setUserName('');
-                        }}
-                      >
-                        Logout
-                      </button>
+                      className="btn btn-outline-light ms-2"
+                      onClick={() => {
+                        fetch('/api/auth/logout', { method: 'DELETE' }).catch(() => {});
+                        localStorage.removeItem('userName');
+                        setUserName(''); // ✅ immediately update React state
+                      }}
+                    >
+                      Logout
+                    </button>
+                    
                     ) : (
                       <NavLink className="nav-link" to="/">Login</NavLink>
                     )}
@@ -96,7 +97,7 @@ export default function App() {
         </header>
 
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Login setUserName={setUserName} />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/post" element={<Post />} />
           <Route path="/map" element={<Map />} />

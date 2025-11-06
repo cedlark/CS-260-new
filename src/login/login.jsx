@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthState } from './authState';
 import { Unauthenticated } from './unauthenticated';
 
-export function Login() {
+export function Login({ setUserName }) {
   const navigate = useNavigate();
   const [authState, setAuthState] = React.useState(AuthState.Unknown);
   const [userName, setUserName] = React.useState(localStorage.getItem('userName') || '');
@@ -33,8 +33,14 @@ export function Login() {
         userName={userName}
         onLogin={(loginUserName) => {
           localStorage.setItem('userName', loginUserName);
-          setUserName(loginUserName); 
-          navigate('/friends');
+      
+          if (typeof setUserName === 'function') {
+            setUserName(loginUserName);
+          } else {
+            window.dispatchEvent(new Event('storage'));
+          }
+      
+          navigate('/friends'); 
         }}
       />
       
