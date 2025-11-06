@@ -27,16 +27,40 @@ export default function App() {
               <div className="collapse navbar-collapse" id="navbarNav">
                 <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                   <li className="nav-item">
-                    <NavLink className='nav-link' to="">Login</NavLink>
+                    <NavLink className="nav-link" to="">Login</NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className='nav-link' to='friends'>Friends</NavLink>
+                    <NavLink
+                      className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
+                      to={localStorage.getItem('userName') ? 'friends' : '#'}
+                      onClick={(e) => {
+                        if (!localStorage.getItem('userName')) e.preventDefault();
+                      }}
+                    >
+                      Friends
+                    </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className='nav-link' to='post'>Post</NavLink>
+                    <NavLink
+                      className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
+                      to={localStorage.getItem('userName') ? 'post' : '#'}
+                      onClick={(e) => {
+                        if (!localStorage.getItem('userName')) e.preventDefault();
+                      }}
+                    >
+                      Post
+                    </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className='nav-link' to='map'>Map</NavLink>
+                    <NavLink
+                      className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
+                      to={localStorage.getItem('userName') ? 'map' : '#'}
+                      onClick={(e) => {
+                        if (!localStorage.getItem('userName')) e.preventDefault();
+                      }}
+                    >
+                      Map
+                    </NavLink>
                   </li>
                 </ul>
                 <span className="text-white">Hello Username</span>
