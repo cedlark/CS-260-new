@@ -1,108 +1,68 @@
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const bcrypt = require('bcryptjs');
-const uuid = require('uuid');
+import express from "express";
+import cookieParser from "cookie-parser";
+import bcrypt from "bcryptjs";
+import uuid from "uuid";
 
 const app = express();
-const port = process.argv.length > 2 ? process.argv[2] : 4000;
+const port = process.env.PORT || 4000;
 
-// --- Middleware setup ---
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static('public')); // serves frontend build if needed
 
-// --- Data structures ---
 let users = [];
-let scores = [];
-const authCookieName = 'token';
+let posts = [];
+let friends = [];
 
-// --- Helper functions ---
-async function findUser(field, value) {
-  return users.find((u) => u[field] === value);
-}
-
-async function createUser(email, password) {
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = {
-    email,
-    password: passwordHash,
-    token: uuid.v4(),
-  };
-  users.push(user);
-  return user;
-}
-
-function setAuthCookie(res, token) {
-  res.cookie(authCookieName, token, {
-    secure: false, // true if using HTTPS
-    httpOnly: true,
-    sameSite: 'strict',
-  });
-}
-
-// --- API Routes ---
 const apiRouter = express.Router();
-app.use('/api', apiRouter);
 
-// Create new user
-apiRouter.post('/auth/create', async (req, res) => {
-  if (await findUser('email', req.body.email)) {
-    res.status(409).send({ msg: 'Existing user' });
-  } else {
-    const user = await createUser(req.body.email, req.body.password);
-    setAuthCookie(res, user.token);
-    res.send({ email: user.email });
-  }
+apiRouter.post("/auth/create", async (req, res) => {
+  // TODO: Add user creation logic
+  res.sendStatus(200);
 });
 
-// Login existing user
-apiRouter.post('/auth/login', async (req, res) => {
-  const user = await findUser('email', req.body.email);
-  if (user && await bcrypt.compare(req.body.password, user.password)) {
-    user.token = uuid.v4();
-    setAuthCookie(res, user.token);
-    res.send({ email: user.email });
-  } else {
-    res.status(401).send({ msg: 'Unauthorized' });
-  }
+apiRouter.post("/auth/login", async (req, res) => {
+  // TODO: Add login logic
+  res.sendStatus(200);
 });
 
-// Logout
-apiRouter.delete('/auth/logout', async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  if (user) delete user.token;
-  res.clearCookie(authCookieName);
-  res.status(204).end();
+apiRouter.delete("/auth/logout", async (req, res) => {
+  // TODO: Add logout logic
+  res.sendStatus(204);
 });
 
-// Authorization middleware
-async function verifyAuth(req, res, next) {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  if (user) next();
-  else res.status(401).send({ msg: 'Unauthorized' });
-}
-
-// Example protected routes
-apiRouter.get('/post', verifyAuth, (_req, res) => {
-  res.send(scores);
+apiRouter.get("/posts", (req, res) => {
+  // TODO: Return all posts later
+  res.sendStatus(200);
 });
 
-apiRouter.post('/friends', verifyAuth, (req, res) => {
-  scores.push(req.body);
-  res.send(scores);
+apiRouter.post("/posts", (req, res) => {
+  // TODO: Handle adding new posts later
+  res.sendStatus(201);
 });
 
-// --- Error handling ---
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send({ type: err.name, message: err.message });
+apiRouter.get("/friends", (req, res) => {
+  // TODO: Return friends list later
+  res.sendStatus(200);
 });
 
-// Fallback route (for SPA)
-app.use((_req, res) => {
-  res.sendFile('index.html', { root: 'public' });
+apiRouter.post("/friends", (req, res) => {
+  // TODO: Handle adding a friend later
+  res.sendStatus(201);
+});
+
+app.use("/api", apiRouter);
+
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
 app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
