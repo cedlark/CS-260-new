@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 
 const app = express();
-const port = process.argv.length > 2 ? process.argv[2] : 3000;
+const port = process.argv.length > 2 ? process.argv[2] : 4000;
 
 // --- Middleware setup ---
 app.use(express.json());
