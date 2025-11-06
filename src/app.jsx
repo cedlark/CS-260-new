@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
+
 import { Login } from './login/login';
 import { Friends } from './friends/friends';
 import { Map } from './map/map';
 import { Post } from './post/post';
-
-import { useNavigate } from 'react-router-dom';
 
 function LogoutButton({ setUserName }) {
   const navigate = useNavigate();
@@ -28,6 +27,7 @@ function LogoutButton({ setUserName }) {
 
 export default function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
+
   useEffect(() => {
     const handleStorageChange = () => {
       setUserName(localStorage.getItem('userName') || '');
@@ -39,8 +39,6 @@ export default function App() {
   const preventIfLoggedOut = (e) => {
     if (!userName) e.preventDefault();
   };
-
-  const navigate = useNavigate();
 
   return (
     <BrowserRouter>
@@ -72,7 +70,7 @@ export default function App() {
                     <NavLink
                       className={`nav-link ${!userName ? 'disabled' : ''}`}
                       to={userName ? '/friends' : '#'}
-                      onClick={(e) => { if (!userName) e.preventDefault(); }}
+                      onClick={preventIfLoggedOut}
                     >
                       Friends
                     </NavLink>
@@ -82,7 +80,7 @@ export default function App() {
                     <NavLink
                       className={`nav-link ${!userName ? 'disabled' : ''}`}
                       to={userName ? '/post' : '#'}
-                      onClick={(e) => { if (!userName) e.preventDefault(); }}
+                      onClick={preventIfLoggedOut}
                     >
                       Post
                     </NavLink>
@@ -92,7 +90,7 @@ export default function App() {
                     <NavLink
                       className={`nav-link ${!userName ? 'disabled' : ''}`}
                       to={userName ? '/map' : '#'}
-                      onClick={(e) => { if (!userName) e.preventDefault(); }}
+                      onClick={preventIfLoggedOut}
                     >
                       Map
                     </NavLink>
@@ -129,5 +127,9 @@ export default function App() {
 }
 
 function NotFound() {
-  return <main className="container-fluid text-center">404: Return to sender. Address unknown.</main>;
+  return (
+    <main className="container-fluid text-center">
+      404: Return to sender. Address unknown.
+    </main>
+  );
 }
