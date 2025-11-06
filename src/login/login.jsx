@@ -5,13 +5,15 @@ import { Unauthenticated } from './unauthenticated';
 
 export function Login() {
   const navigate = useNavigate();
-
   const [authState, setAuthState] = React.useState(AuthState.Unknown);
   const [userName, setUserName] = React.useState(localStorage.getItem('userName') || '');
 
   function onAuthChange(userName, newState) {
     setUserName(userName);
     setAuthState(newState);
+    if (newState === AuthState.Authenticated) {
+      navigate('/friends');
+    }
   }
 
   React.useEffect(() => {
@@ -26,28 +28,23 @@ export function Login() {
     <main className="container-fluid text-center">
       <h1>Welcome to Taco Baco</h1>
 
-      <div className="w-25 mx-auto">
-        {authState !== AuthState.Unknown && <h2>Welcome to Simon</h2>}
+      {authState === AuthState.Unauthenticated && (
+        <Unauthenticated
+        userName={userName}
+        onLogin={(loginUserName) => {
+          localStorage.setItem('userName', loginUserName);
+          setUserName(loginUserName); 
+          navigate('/friends');
+        }}
+      />
+      
+      )}
 
-        {authState === AuthState.Authenticated && (
-          <Authenticated
-            userName={userName}
-            onLogout={() => onAuthChange('', AuthState.Unauthenticated)}
-          />
-        )}
+      {authState === AuthState.Authenticated && (
+        <p>You’re already logged in as {userName}.</p>
+      )}
 
-        {authState === AuthState.Unauthenticated && (
-          <Unauthenticated
-            userName={userName}
-            onLogin={(loginUserName) => {
-              onAuthChange(loginUserName, AuthState.Authenticated);
-              navigate('/friends'); 
-            }}
-          />
-        )}
-      </div>
-
-      <p>After you log in, your friends' posts go here.</p>
+      <p>After you log in, your friends' posts will appear here.</p>
     </main>
   );
 }
