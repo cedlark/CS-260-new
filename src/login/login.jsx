@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthState } from './authState';
-import { Authenticated } from './authenticated';
 import { Unauthenticated } from './unauthenticated';
 
 export function Login() {

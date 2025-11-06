@@ -25,44 +25,74 @@ export default function App() {
               </button>
   
               <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                  <li className="nav-item">
-                    <NavLink className="nav-link" to="">Login</NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink
-                      className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
-                      to={localStorage.getItem('userName') ? 'friends' : '#'}
-                      onClick={(e) => {
-                        if (!localStorage.getItem('userName')) e.preventDefault();
+              <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                <li className="nav-item">
+                  {/* Show “Login” or “Logout” depending on auth */}
+                  {localStorage.getItem('userName') ? (
+                    <button
+                      className="btn btn-outline-light ms-2"
+                      onClick={() => {
+                        // clear user info
+                        localStorage.removeItem('userName');
+                        // optional: call backend logout endpoint
+                        fetch('/api/auth/logout', { method: 'DELETE' }).catch(() => {});
+                        // redirect back to login
+                        window.location.href = '/';
                       }}
                     >
-                      Friends
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink
-                      className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
-                      to={localStorage.getItem('userName') ? 'post' : '#'}
-                      onClick={(e) => {
-                        if (!localStorage.getItem('userName')) e.preventDefault();
-                      }}
-                    >
-                      Post
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink
-                      className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
-                      to={localStorage.getItem('userName') ? 'map' : '#'}
-                      onClick={(e) => {
-                        if (!localStorage.getItem('userName')) e.preventDefault();
-                      }}
-                    >
-                      Map
-                    </NavLink>
-                  </li>
-                </ul>
+                      Logout
+                    </button>
+                  ) : (
+                    <NavLink className="nav-link" to="/">Login</NavLink>
+                  )}
+                </li>
+
+                {/* Friends */}
+                <li className="nav-item">
+                  <NavLink
+                    className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
+                    to={localStorage.getItem('userName') ? 'friends' : '#'}
+                    onClick={(e) => {
+                      if (!localStorage.getItem('userName')) e.preventDefault();
+                    }}
+                  >
+                    Friends
+                  </NavLink>
+                </li>
+
+                {/* Post */}
+                <li className="nav-item">
+                  <NavLink
+                    className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
+                    to={localStorage.getItem('userName') ? 'post' : '#'}
+                    onClick={(e) => {
+                      if (!localStorage.getItem('userName')) e.preventDefault();
+                    }}
+                  >
+                    Post
+                  </NavLink>
+                </li>
+
+                {/* Map */}
+                <li className="nav-item">
+                  <NavLink
+                    className={`nav-link ${!localStorage.getItem('userName') ? 'disabled' : ''}`}
+                    to={localStorage.getItem('userName') ? 'map' : '#'}
+                    onClick={(e) => {
+                      if (!localStorage.getItem('userName')) e.preventDefault();
+                    }}
+                  >
+                    Map
+                  </NavLink>
+                </li>
+              </ul>
+
+              <span className="text-white">
+                {localStorage.getItem('userName')
+                  ? `Hello ${localStorage.getItem('userName')}`
+                  : 'Please log in'}
+              </span>
+
                 <span className="text-white">Hello Username</span>
               </div>
             </div>
