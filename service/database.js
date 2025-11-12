@@ -5,7 +5,7 @@ const url = `mongodb+srv://${config.userName}:${config.password}@${config.hostna
 const client = new MongoClient(url);
 const db = client.db('startup');
 const userCollection = db.collection('user');
-const scoreCollection = db.collection('posts');
+const postCollection = db.collection('posts');
 
 
 // This will asynchronously test the connection and exit the process if it fails
@@ -35,17 +35,17 @@ async function updateUser(user) {
   await userCollection.updateOne({ email: user.email }, { $set: user });
 }
 
-async function addScore(score) {
-  return scoreCollection.insertOne(score);
+async function addPost(Post) {
+  return postCollection.insertOne(post);
 }
 
-function getHighScores() {
-  const query = { score: { $gt: 0, $lt: 900 } };
+function getNewPost() {
+  const query = { post: { $gt: 0, $lt: 900 } };
   const options = {
-    sort: { score: -1 },
+    sort: { post: -1 },
     limit: 10,
   };
-  const cursor = scoreCollection.find(query, options);
+  const cursor = postCollection.find(query, options);
   return cursor.toArray();
 }
 

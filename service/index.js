@@ -72,15 +72,15 @@ const verifyAuth = async (req, res, next) => {
 };
 
 // GetScores
-apiRouter.get('/scores', verifyAuth, async (req, res) => {
-  const scores = await DB.getHighScores();
-  res.send(scores);
+apiRouter.get('/post', verifyAuth, async (req, res) => {
+  const posts = await DB.getNewPost();
+  res.send(posts);
 });
 
 // SubmitScore
-apiRouter.post('/score', verifyAuth, async (req, res) => {
-  const scores = updateScores(req.body);
-  res.send(scores);
+apiRouter.post('/post', verifyAuth, async (req, res) => {
+  const posts = updatePosts(req.body);
+  res.send(posts);
 });
 
 // Default error handler
@@ -94,9 +94,9 @@ app.use((_req, res) => {
 });
 
 // updateScores considers a new score for inclusion in the high scores.
-async function updatePosts(newScore) {
-  await DB.addScore(newScore);
-  return DB.getHighScores();
+async function updatePosts(newPost) {
+  await DB.addPost(newPost);
+  return DB.getNewPost();
 }
 
 async function createUser(email, password) {
