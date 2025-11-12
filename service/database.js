@@ -3,6 +3,7 @@ const config = require('./dbConfig.json');
 
 const url = `mongodb+srv://${config.userName}:${config.password}@${config.hostname}`;
 const client = new MongoClient(url);
+await client.connect();
 const db = client.db('startup');
 const userCollection = db.collection('user');
 const postCollection = db.collection('posts');
@@ -35,26 +36,33 @@ async function updateUser(user) {
   await userCollection.updateOne({ email: user.email }, { $set: user });
 }
 
-async function addPost(Post) {
+async function addPost(post) {
   return postCollection.insertOne(post);
 }
 
-function getNewPost() {
-  const query = { post: { $gt: 0, $lt: 900 } };
-  const options = {
-    sort: { post: -1 },
-    limit: 10,
-  };
-  const cursor = postCollection.find(query, options);
+async function getNewPost() {
+  const options = { sort: { _id: -1 }, limit: 10 };
+  const cursor = postCollection.find({}, options);
   return cursor.toArray();
 }
+async function addFriend(email, friendEmail) {
+  return userCollection.updateOne(
+    { email },
+    { $addToSet: { friends: friendEmail } }  // prevents duplicates
+  );
+}
 
+async function getFriends(email) {
+  const user = await userCollection.findOne({ email });
+  return user?.friends || [];
+}
 module.exports = {
   getUser,
   getUserByToken,
   addUser,
   updateUser,
-  addPosts,
-  getPosts,
-  recipe,
+  addPost,
+  getNewPost,
+  addFriend,
+  getFriends
 };

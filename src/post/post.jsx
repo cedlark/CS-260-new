@@ -26,14 +26,26 @@ export function Post() {
     }
   };
 
-  const handlePost = () => {
+  async function handlePost() {
     if (text.trim() === "") return;
-    const newPost = { text, image, id: Date.now() };
-    setPosts([newPost, ...posts]);
+    const newPost = { text, image };
+    const res = await fetch("/api/post", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newPost)
+    });
+    const updatedPosts = await res.json();
+    setPosts(updatedPosts);
     setText("");
     setImage(null);
     setShowPopup(false);
-  };
+  }
+  
+  useEffect(() => {
+    fetch("/api/post")
+      .then((res) => res.json())
+      .then(setPosts);
+  }, []);
   return (
     <main className="container-fluid text-center">
       <br />

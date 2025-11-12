@@ -79,7 +79,7 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
 
 // SubmitScore
 apiRouter.post('/post', verifyAuth, async (req, res) => {
-  const posts = updatePosts(req.body);
+  const posts = await updatePosts(req.body);
   res.send(posts);
 });
 
@@ -120,6 +120,24 @@ async function findUser(field, value) {
   }
   return DB.getUser(value);
 }
+
+// Add a friend
+apiRouter.post('/friends', verifyAuth, async (req, res) => {
+  const user = await findUser('token', req.cookies[authCookieName]);
+  const { friendEmail } = req.body;
+  if (!friendEmail) return res.status(400).send({ msg: "Missing friend email" });
+
+  await DB.addFriend(user.email, friendEmail);
+  const friends = await DB.getFriends(user.email);
+  res.send(friends);
+});
+
+// Get friend list
+apiRouter.get('/friends', verifyAuth, async (req, res) => {
+  const user = await findUser('token', req.cookies[authCookieName]);
+  const friends = await DB.getFriends(user.email);
+  res.send(friends);
+});
 
 // setAuthCookie in the HTTP response
 function setAuthCookie(res, authToken) {
