@@ -11,7 +11,15 @@ const authCookieName = 'token';
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 
 // JSON body parsing using built-in middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // saves files in /uploads
+
+apiRouter.post('/upload', verifyAuth, upload.single('image'), (req, res) => {
+  res.send({ imagePath: `/uploads/${req.file.filename}` });
+});
+app.use('/uploads', express.static('uploads'));
 
 // Use the cookie parser middleware for tracking authentication tokens
 app.use(cookieParser());

@@ -1,38 +1,41 @@
 import React, { useState, useEffect } from "react";
 import "./post.css";
 
-
 export function Post() {
-    const [showPopup, setShowPopup] = useState(false);
-    const [text, setText] = useState("");
-    const [image, setImage] = useState(null);
-    const [posts, setPosts] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [text, setText] = useState("");
+  const [image, setImage] = useState(null);
+  const [posts, setPosts] = useState([]);
 
-    useEffect(() => {
-        const saved = localStorage.getItem("posts");
-        if (saved) setPosts(JSON.parse(saved));
-    }, []);
+  // Load posts from backend
+  useEffect(() => {
+    fetch("/api/post")
+      .then((res) => res.json())
+      .then(setPosts)
+      .catch(() => setPosts([]));
+  }, []);
 
-    useEffect(() => {
-        localStorage.setItem("posts", JSON.stringify(posts));
-      }, [posts]);
-
-    const handleImageChange = (e) => {
+  // Upload image file to backend
+  async function handleImageChange(e) {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => setImage(event.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
+    if (!file) return;
 
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    setImage(data.imagePath); // store server path instead of base64
+  }
+
+  // Submit new post
   async function handlePost() {
     if (text.trim() === "") return;
     const newPost = { text, image };
     const res = await fetch("/api/post", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newPost)
+      body: JSON.stringify(newPost),
     });
     const updatedPosts = await res.json();
     setPosts(updatedPosts);
@@ -40,16 +43,10 @@ export function Post() {
     setImage(null);
     setShowPopup(false);
   }
-  
-  useEffect(() => {
-    fetch("/api/post")
-      .then((res) => res.json())
-      .then(setPosts);
-  }, []);
+
   return (
     <main className="container-fluid text-center">
       <br />
-
       <div>
         <button id="newPost" onClick={() => setShowPopup(true)}>
           Make a Post
@@ -57,16 +54,18 @@ export function Post() {
       </div>
 
       <br />
-
       <div>
         <h2>Previous Posts</h2>
-        {posts.length === 0 && <p>No posts yet!</p>}
-        {posts.map((p) => (
-          <div key={p.id} className="post-card">
-            <p>{p.text}</p>
-            {p.image && <img src={p.image} alt="post" width="300px" />}
-          </div>
-        ))}
+        {!Array.isArray(posts) || posts.length === 0 ? (
+          <p>No posts yet!</p>
+        ) : (
+          posts.map((p) => (
+            <div key={p._id || p.id || Math.random()} className="post-card">
+              <p>{p.text}</p>
+              {p.image && <img src={p.image} alt="post" width="300px" />}
+            </div>
+          ))
+        )}
       </div>
 
       {showPopup && (
@@ -81,47 +80,41 @@ export function Post() {
               style={{ width: "100%", marginBottom: "10px" }}
             />
             <label
-                htmlFor="imageUpload"
-                style={{
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    display: "inline-block",
-                    marginBottom: "10px"
-                }}
-                >
-                Add Image
-                </label>
-                <input
-                id="imageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ display: "none" }}
-                />
-                {image && (
-                    <img
-                        src={image}
-                        alt="preview"
-                        width="100%"
-                        style={{
-                        marginTop: "10px",
-                        borderRadius: "10px",
-                        maxHeight: "300px",
-                        objectFit: "cover"
-                        }}
-                    />
-                    )}
+              htmlFor="imageUpload"
+              style={{
+                backgroundColor: "#007bff",
+                color: "white",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                display: "inline-block",
+                marginBottom: "10px",
+              }}
+            >
+              Add Image
+            </label>
+            <input
+              id="imageUpload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ display: "none" }}
+            />
+
             {image && (
               <img
                 src={image}
                 alt="preview"
                 width="100%"
-                style={{ marginTop: "10px", borderRadius: "10px" }}
+                style={{
+                  marginTop: "10px",
+                  borderRadius: "10px",
+                  maxHeight: "300px",
+                  objectFit: "cover",
+                }}
               />
             )}
+
             <div style={{ marginTop: "15px" }}>
               <button onClick={handlePost}>Post</button>
               <button
