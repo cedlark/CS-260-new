@@ -79,8 +79,13 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
 
 // SubmitScore
 apiRouter.post('/post', verifyAuth, async (req, res) => {
-  const posts = await updatePosts(req.body);
-  res.send(posts);
+  try {
+    const posts = await updatePosts(req.body);
+    res.send(posts);
+  } catch (err) {
+    console.error("Error in /post:", err);
+    res.status(500).send({ error: err.message });
+  }
 });
 
 // Default error handler
