@@ -67,6 +67,14 @@ async function searchUsers(query) {
   return userCollection.find(filter, { projection }).limit(10).toArray();
 }
 
+async function removeFriend(email, friendEmail) {
+  await connect();
+  return userCollection.updateOne(
+    { email },
+    { $pull: { friends: friendEmail } }
+  );
+}
+
 module.exports = {
   getUser,
   getUserByToken,
@@ -77,4 +85,5 @@ module.exports = {
   addFriend,
   getFriends,
   searchUsers,
+  removeFriend,
 };

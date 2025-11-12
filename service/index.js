@@ -105,6 +105,12 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
 
 apiRouter.post('/post', verifyAuth, async (req, res) => {
   try {
+    const user = await findUser('token', req.cookies[authCookieName]);
+    const postData = {
+      ...req.body,
+      user: user.email,   // 👈 NEW: attach user email
+      timestamp: Date.now(),
+    };
     await DB.addPost(req.body);
     res.send(await DB.getNewPost());
   } catch (err) {
@@ -125,6 +131,16 @@ apiRouter.get('/friends', verifyAuth, async (req, res) => {
   res.send(await DB.getFriends(user.email));
 });
 
+apiRouter.post('/friends/remove', verifyAuth, async (req, res) => {
+  const user = await findUser('token', req.cookies[authCookieName]);
+  const { friendEmail } = req.body;
+
+  if (!friendEmail) return res.status(400).send({ msg: "Missing friend email" });
+
+  await DB.removeFriend(user.email, friendEmail);
+  const updatedFriends = await DB.getFriends(user.email);
+  res.send(updatedFriends);
+});
 
 apiRouter.get('/users/search', verifyAuth, async (req, res) => {
   const query = req.query.q || "";

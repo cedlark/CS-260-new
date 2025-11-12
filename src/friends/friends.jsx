@@ -38,6 +38,15 @@ export function Friends() {
     const updated = await res.json();
     setFriends(updated);
   };
+  async function removeFriend(email) {
+    const res = await fetch('/api/friends/remove', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ friendEmail: email }),
+    });
+    const updated = await res.json();
+    setFriends(updated);
+  }
 
   return (
     <main className="container-fluid text-center">
@@ -47,7 +56,12 @@ export function Friends() {
 
       <h2>Your Friends</h2>
       {friends.length === 0 ? <p>No friends yet 😢</p> :
-        <ul>{friends.map(f => <li key={f}>{f}</li>)}</ul>
+        <ul>{friends.map((f) => (
+          <li key={f} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+            <span>{f}</span>
+            <button onClick={() => removeFriend(f)}>Remove</button>
+          </li>
+        ))}</ul>
       }
 
       {showPopup && (
