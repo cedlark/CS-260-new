@@ -38,15 +38,20 @@ export function Friends() {
     const updated = await res.json();
     setFriends(updated);
   };
-  async function removeFriend(email) {
+  const removeFriend = async (friendEmail) => {
     const res = await fetch('/api/friends/remove', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendEmail: email }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ friendEmail }),
     });
-    const updated = await res.json();
-    setFriends(updated);
-  }
+  
+    if (res.ok) {
+      const updated = await res.json();
+      setFriends(updated);
+    } else {
+      console.error('Failed to remove friend');
+    }
+  };
 
   return (
     <main className="container-fluid text-center">

@@ -132,14 +132,21 @@ apiRouter.get('/friends', verifyAuth, async (req, res) => {
 });
 
 apiRouter.post('/friends/remove', verifyAuth, async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  const { friendEmail } = req.body;
+  try {
+    const user = await findUser('token', req.cookies[authCookieName]);
+    const { friendEmail } = req.body;
 
-  if (!friendEmail) return res.status(400).send({ msg: "Missing friend email" });
+    if (!friendEmail) {
+      return res.status(400).send({ msg: 'Missing friend email' });
+    }
 
-  await DB.removeFriend(user.email, friendEmail);
-  const updatedFriends = await DB.getFriends(user.email);
-  res.send(updatedFriends);
+    await DB.removeFriend(user.email, friendEmail);
+    const updatedFriends = await DB.getFriends(user.email);
+    res.send(updatedFriends);
+  } catch (err) {
+    console.error('Error in /friends/remove:', err);
+    res.status(500).send({ error: err.message });
+  }
 });
 
 apiRouter.get('/users/search', verifyAuth, async (req, res) => {

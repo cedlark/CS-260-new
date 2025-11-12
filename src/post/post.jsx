@@ -60,23 +60,27 @@ export function Post() {
           <p>No posts yet!</p>
         ) : (
           posts.map((p) => (
-            <div key={p._id} className="post-card">
-              <div style={{ fontWeight: "bold", textAlign: "left" }}>
-                {p.user}
+            <div key={p._id || p.id || Math.random()} className="post-card">
+              {/* poster name on the left */}
+              <div style={{ textAlign: 'left', fontWeight: 'bold' }}>
+                {p.user || 'Unknown user'}
               </div>
+
               <p>{p.text}</p>
+
               {p.image && (
                 <img
                   src={p.image}
                   alt="post"
                   width="300px"
-                  style={{ borderRadius: "8px", marginTop: "8px" }}
+                  style={{ marginTop: '8px', borderRadius: '8px' }}
                 />
               )}
             </div>
           ))
         )}
       </div>
+
 
       {showPopup && (
         <div className="popup">
