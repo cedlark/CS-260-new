@@ -56,6 +56,18 @@ async function getFriends(email) {
   const user = await userCollection.findOne({ email });
   return user?.friends || [];
 }
+
+async function searchUsers(query) {
+  // Use a case-insensitive regex search on the email or username field
+  const filter = {
+    email: { $regex: query, $options: "i" }
+  };
+
+  const projection = { email: 1, _id: 0 };
+  const users = await userCollection.find(filter, { projection }).limit(10).toArray();
+  return users;
+}
+
 module.exports = {
   getUser,
   getUserByToken,
@@ -64,5 +76,6 @@ module.exports = {
   addPost,
   getNewPost,
   addFriend,
-  getFriends
+  getFriends,
+  searchUsers
 };

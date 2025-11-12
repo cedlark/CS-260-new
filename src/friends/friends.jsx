@@ -1,25 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import './friends.css';
-import usersData from './users.json';
 
 export function Friends() {
   const [showPopup, setShowPopup] = useState(false);
-  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [results, setResults] = useState([]);
   const [friends, setFriends] = useState([]);
 
+  // Load your existing friend list when page opens
   useEffect(() => {
-    setUsers(usersData);
+    fetch('/api/friends')
+      .then(res => res.json())
+      .then(setFriends);
   }, []);
 
-  const filteredUsers = users.filter((u) =>
-    u.toLowerCase().includes(search.toLowerCase())
-  );
+  // Fetch search results whenever query changes
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      if (search.trim() !== "") {
+        fetch(`/api/users/search?q=${encodeURIComponent(search)}`)
+          .then(res => res.json())
+          .then(setResults)
+          .catch(() => setResults([]));
+      } else {
+        setResults([]);
+      }
+    }, 300); // debounce typing
+    return () => clearTimeout(delay);
+  }, [search]);
 
-  const addFriend = (username) => {
-    if (!friends.includes(username)) {
-      setFriends([...friends, username]);
-    }
+  const addFriend = async (friendEmail) => {
+    const res = await fetch('/api/friends', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ friendEmail })
+    });
+    const updated = await res.json();
+    setFriends(updated);
   };
 
   return (
@@ -28,26 +45,10 @@ export function Friends() {
         Find New Friends
       </button>
 
-      <h2>Friends Posts</h2>
-      {friends.length === 0 ? (
-        <p>No friends yet 😢</p>
-      ) : (
-        <div style={{ marginTop: "20px" }}>
-          {friends.map((f) => (
-            <div
-              key={f}
-              style={{
-                border: "1px dashed gray",
-                padding: "10px",
-                borderRadius: "8px",
-                marginBottom: "10px",
-              }}
-            >
-              <strong>{f}</strong>'s post will appear here.
-            </div>
-          ))}
-        </div>
-      )}
+      <h2>Your Friends</h2>
+      {friends.length === 0 ? <p>No friends yet 😢</p> :
+        <ul>{friends.map(f => <li key={f}>{f}</li>)}</ul>
+      }
 
       {showPopup && (
         <div className="popup">
@@ -55,32 +56,19 @@ export function Friends() {
             <h3>Search for Friends</h3>
             <input
               type="text"
-              placeholder="Enter username..."
+              placeholder="Enter email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: "100%", marginBottom: "10px" }}
             />
             <ul style={{ textAlign: "left", maxHeight: "150px", overflowY: "auto", padding: 0 }}>
-              {filteredUsers.map((u) => (
-                <li
-                  key={u}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <span>{u}</span>
-                  <button
-                    onClick={() => addFriend(u)}
-                    style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                  >
-                    Add Friend
-                  </button>
+              {results.map((u) => (
+                <li key={u.email} style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>{u.email}</span>
+                  <button onClick={() => addFriend(u.email)}>Add</button>
                 </li>
               ))}
-              {filteredUsers.length === 0 && <li>No users found</li>}
+              {results.length === 0 && search && <li>No users found</li>}
             </ul>
             <button onClick={() => setShowPopup(false)}>Close</button>
           </div>

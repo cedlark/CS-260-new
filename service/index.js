@@ -139,6 +139,16 @@ apiRouter.get('/friends', verifyAuth, async (req, res) => {
   res.send(friends);
 });
 
+apiRouter.get('/users/search', verifyAuth, async (req, res) => {
+  const query = req.query.q || "";
+  if (!query.trim()) {
+    return res.status(400).send({ msg: "Missing search query" });
+  }
+
+  const users = await DB.searchUsers(query);
+  res.send(users);
+});
+
 // setAuthCookie in the HTTP response
 function setAuthCookie(res, authToken) {
   res.cookie(authCookieName, authToken, {
