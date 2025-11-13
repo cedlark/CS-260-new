@@ -100,7 +100,13 @@ const verifyAuth = async (req, res, next) => {
 
 
 apiRouter.get('/post', verifyAuth, async (req, res) => {
-  res.send(await DB.getNewPost());
+  const user = await findUser('token', req.cookies[authCookieName]);
+  const friends = await DB.getFriends(user.email);
+
+  const allowedUsers = [...friends, user.email];
+
+  const posts = await DB.getPostsByUsers(allowedUsers);
+  res.send(posts);
 });
 
 apiRouter.post('/post', verifyAuth, async (req, res) => {
@@ -111,6 +117,7 @@ apiRouter.post('/post', verifyAuth, async (req, res) => {
       user: user.email,   // 👈 NEW: attach user email
       timestamp: Date.now(),
     };
+    console.log("postData being saved:", postData);
     await DB.addPost(req.body);
     res.send(await DB.getNewPost());
   } catch (err) {
@@ -171,12 +178,12 @@ async function findUser(field, value) {
     : DB.getUser(value);
 }
 
-function setAuthCookie(res, token) {
-  res.cookie(authCookieName, token, {
+function setAuthCookie(res, authToken) {
+  res.cookie(authCookieName, authToken, {
     maxAge: 1000 * 60 * 60 * 24 * 365,
-    secure: false,      // IMPORTANT FOR LOCALHOST
+    secure: false,    
     httpOnly: true,
-    sameSite: 'lax',    // Important for local dev navigation
+    sameSite: 'lax',    
   });
 }
 

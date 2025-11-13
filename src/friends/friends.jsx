@@ -58,16 +58,27 @@ export function Friends() {
       <button id="newFriend" onClick={() => setShowPopup(true)}>
         Find New Friends
       </button>
-
       <h2>Your Friends</h2>
-      {friends.length === 0 ? <p>No friends yet 😢</p> :
-        <ul>{friends.map((f) => (
-          <li key={f} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-            <span>{f}</span>
-            <button onClick={() => removeFriend(f)}>Remove</button>
-          </li>
-        ))}</ul>
-      }
+      {!Array.isArray(friends) || friends.length === 0 ? (
+        <p>No friends yet 😢</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {friends.map((f) => (
+            <li
+              key={f}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '4px 0',
+              }}
+            >
+              <span>{f}</span>
+              <button onClick={() => removeFriend(f)}>Remove</button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {showPopup && (
         <div className="popup">

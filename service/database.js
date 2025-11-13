@@ -75,6 +75,13 @@ async function removeFriend(email, friendEmail) {
   );
 }
 
+async function getPostsByUsers(userEmails) {
+  await connect();
+  return postCollection
+    .find({ user: { $in: userEmails } }, { sort: { createdAt: -1 } })
+    .toArray();
+}
+
 module.exports = {
   getUser,
   getUserByToken,
@@ -86,4 +93,5 @@ module.exports = {
   getFriends,
   searchUsers,
   removeFriend,
+  getPostsByUsers,
 };
