@@ -10,6 +10,7 @@ const DB = require('./database.js');
 const app = express();
 const authCookieName = 'token';
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
+const { WebSocketServer } = require('ws');
 
 
 app.use(express.json({ limit: '10mb' }));
@@ -189,6 +190,65 @@ app.use((err, req, res, next) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+const server = app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
+
+const wss = new WebSocketServer({ server });
+app.locals.wss = wss;
+const DB = require('./database.js');
+
+wss.on('connection', async (socket, req) => {
+  socket.isAlive = true;
+
+  socket.on('pong', () => {
+    socket.isAlive = true;
+  });
+
+  socket.on('message', async (data) => {
+    let msg;
+
+    try {
+      msg = JSON.parse(data);
+    } catch {
+      return;
+    }
+
+    // When client sends authentication token
+    if (msg.type === "auth") {
+      const user = await DB.getUserByToken(msg.token);
+
+      if (!user) {
+        socket.close();
+        return;
+      }
+
+      socket.email = user.email;
+      console.log("WebSocket auth:", socket.email);
+    }
+  });
+});
+
+// Clean up dead connections
+setInterval(() => {
+  wss.clients.forEach(client => {
+    if (!client.isAlive) return client.terminate();
+    client.isAlive = false;
+    client.ping();
+  });
+}, 10000);
+
+// Helper function for broadcasting posts
+wss.broadcastPost = async function(post) {
+  const friends = await DB.getFriends(post.user);
+  const allowed = new Set([...friends, post.user]);
+
+  wss.clients.forEach(client => {
+    if (client.readyState === 1 && allowed.has(client.email)) {
+      client.send(JSON.stringify({
+        type: "post",
+        post
+      }));
+    }
+  });
+};
