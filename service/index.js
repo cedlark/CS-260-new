@@ -2,62 +2,22 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const express = require('express');
 const uuid = require('uuid');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const DB = require('./database.js');
+const { WebSocketServer } = require('ws');
 
 const app = express();
 const authCookieName = 'token';
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
-const { WebSocketServer } = require('ws');
 
-
+// Allow large JSON bodies for Base64 images
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(express.static('public'));
 
-
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
 
-
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, unique + ext);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
-  fileFilter: (req, file, cb) => {
-    const allowed = ['.jpg', '.jpeg', '.png', '.gif'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (!allowed.includes(ext)) {
-      return cb(new Error('Only images are allowed'));
-    }
-    cb(null, true);
-  },
-});
-
-// Static serving of uploaded images
-app.use('/uploads', express.static(uploadDir));
-
-// Upload endpoint
-apiRouter.post('/upload', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).send({ error: 'No file uploaded' });
-  res.send({ imagePath: `/uploads/${req.file.filename}` });
-});
-
+// ---------- AUTH ROUTES ----------
 
 apiRouter.post('/auth/create', async (req, res) => {
   if (await findUser('email', req.body.email)) {
@@ -91,6 +51,7 @@ apiRouter.delete('/auth/logout', async (req, res) => {
   res.status(204).end();
 });
 
+// ---------- AUTH MIDDLEWARE ----------
 
 const verifyAuth = async (req, res, next) => {
   const token = req.cookies[authCookieName];
@@ -99,6 +60,7 @@ const verifyAuth = async (req, res, next) => {
   else res.status(401).send({ msg: 'Unauthorized' });
 };
 
+// ---------- POSTS (now with Base64 image in req.body.image) ----------
 
 apiRouter.get('/post', verifyAuth, async (req, res) => {
   const user = await findUser('token', req.cookies[authCookieName]);
@@ -107,14 +69,16 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
   const allowedUsers = [...friends, user.email];
 
   const posts = await DB.getPostsByUsers(allowedUsers);
+  // Optional: newest first
+  posts.sort((a, b) => b.timestamp - a.timestamp);
   res.send(posts);
 });
 
 apiRouter.post('/post', verifyAuth, async (req, res) => {
   try {
-    const user = await findUser('token', req.cookies.token);
+    const user = await findUser('token', req.cookies[authCookieName]);
     const postData = {
-      ...req.body,
+      ...req.body,          // text + image (Base64) from frontend
       user: user.email,
       timestamp: Date.now(),
     };
@@ -122,11 +86,12 @@ apiRouter.post('/post', verifyAuth, async (req, res) => {
     req.app.locals.wss.broadcastPost(postData);
     res.send({ ok: true });
   } catch (err) {
+    console.error('Error in /post:', err);
     res.status(500).send({ error: err.message });
   }
 });
 
-
+// ---------- FRIENDS ----------
 
 apiRouter.post('/friends', verifyAuth, async (req, res) => {
   const user = await findUser('token', req.cookies[authCookieName]);
@@ -164,6 +129,7 @@ apiRouter.get('/users/search', verifyAuth, async (req, res) => {
   res.send(await DB.searchUsers(query));
 });
 
+// ---------- USER HELPERS ----------
 
 async function createUser(email, password) {
   const passwordHash = await bcrypt.hash(password, 10);
@@ -182,18 +148,20 @@ async function findUser(field, value) {
 function setAuthCookie(res, authToken) {
   res.cookie(authCookieName, authToken, {
     maxAge: 1000 * 60 * 60 * 24 * 365,
-    secure: false,    
+    secure: false,
     httpOnly: true,
-    sameSite: 'lax',    
+    sameSite: 'lax',
   });
 }
 
+// ---------- ERROR HANDLER ----------
 
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).send({ error: err.message });
 });
 
+// ---------- START SERVER + WEBSOCKET ----------
 
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);

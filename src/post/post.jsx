@@ -15,66 +15,57 @@ export function Post() {
   useEffect(() => {
     fetch("/api/post", { credentials: "include" })
       .then((res) => res.json())
-      .then(setPosts)
+      .then((posts) => {
+        posts.sort((a, b) => b.timestamp - a.timestamp);
+        setPosts(posts);
+      })
       .catch(() => setPosts([]));
   }, []);
 
-  // Helper to upload any File/Blob to backend
-  async function uploadImageFile(file) {
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
+  // Convert file to Base64
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
-
-    const data = await res.json();
-    setImage(data.imagePath); // store server path instead of base64
   }
 
-  // Handle file chosen from disk / gallery
+  // Handle choosing an image from disk/gallery
   async function handleImageChange(e) {
     const file = e.target.files[0];
     if (!file) return;
-    await uploadImageFile(file);
+    const base64 = await fileToBase64(file);
+    setImage(base64);
   }
 
-  // Open camera modal and start webcam
+  // Open camera modal & start webcam
   async function openCamera() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert("Camera not supported in this browser.");
-      return;
-    }
-  
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "user",
           width: { ideal: 1280 },
           height: { ideal: 720 },
-        }
+        },
       });
-  
+
       setShowCamera(true);
-  
+
       setTimeout(async () => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
       }, 50);
-  
     } catch (err) {
-      console.error("Error accessing camera:", err);
-      alert("Unable to access camera. Check permissions.");
+      console.error("Camera error:", err);
+      alert("Camera not accessible.");
     }
   }
-  
 
-  // Stop webcam stream and close modal
+  // Close camera modal & stop webcam
   function closeCamera() {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject;
@@ -84,37 +75,22 @@ export function Post() {
     setShowCamera(false);
   }
 
-  // Capture a frame from the video and upload it
+  // Capture webcam frame → Base64
   async function capturePhoto() {
-    if (!videoRef.current || !canvasRef.current) return;
-  
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-  
+    const ctx = canvas.getContext("2d");
+
     canvas.width = video.videoWidth || 1280;
     canvas.height = video.videoHeight || 720;
-  
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-    canvas.toBlob(async (blob) => {
-      const file = new File([blob], "captured.png", { type: "image/png" });
-      await uploadImageFile(file);
-      closeCamera();
-    }, "image/png");
-  }
-  
 
-  // Cleanup camera stream on unmount
-  useEffect(() => {
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject;
-        stream.getTracks().forEach((t) => t.stop());
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, []);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const base64 = canvas.toDataURL("image/png");
+    setImage(base64);
+
+    closeCamera();
+  }
 
   // WebSocket for live posts
   useEffect(() => {
@@ -137,16 +113,19 @@ export function Post() {
     return () => ws.close();
   }, []);
 
-  // Submit new post (WebSocket will update the list)
+  // Create post (WebSocket will update feed)
   async function handlePost() {
-    if (text.trim() === "") return;
+    if (!text.trim()) return;
+
     const newPost = { text, image };
+
     await fetch("/api/post", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newPost),
     });
+
     setText("");
     setImage(null);
     setShowPopup(false);
@@ -155,43 +134,42 @@ export function Post() {
   return (
     <main className="container-fluid text-center">
       <br />
-      <div>
-        <button id="newPost" onClick={() => setShowPopup(true)}>
-          Make a Post
-        </button>
-      </div>
+      <button id="newPost" onClick={() => setShowPopup(true)}>
+        Make a Post
+      </button>
 
       <br />
-      <div>
-        <h2>Previous Posts</h2>
-        {!Array.isArray(posts) || posts.length === 0 ? (
-          <p>No posts yet!</p>
-        ) : (
-          posts.map((p) => (
-            <div key={p._id || p.id || Math.random()} className="post-card">
-              <div style={{ textAlign: "left", fontWeight: "bold" }}>
-                {p.user || "Unknown user"}
-              </div>
+      <h2>Previous Posts</h2>
 
-              <p>{p.text}</p>
-
-              {p.image && (
-                <img
-                  src={`http://localhost:4000${p.image}`}
-                  alt="post"
-                  width="300px"
-                  style={{ marginTop: "8px", borderRadius: "8px" }}
-                />
-              )}
+      {!Array.isArray(posts) || posts.length === 0 ? (
+        <p>No posts yet!</p>
+      ) : (
+        posts.map((p) => (
+          <div key={p._id || p.id || Math.random()} className="post-card">
+            <div style={{ textAlign: "left", fontWeight: "bold" }}>
+              {p.user || "Unknown user"}
             </div>
-          ))
-        )}
-      </div>
 
+            <p>{p.text}</p>
+
+            {p.image && (
+              <img
+                src={p.image}
+                alt="post"
+                width="300px"
+                style={{ marginTop: "8px", borderRadius: "8px" }}
+              />
+            )}
+          </div>
+        ))
+      )}
+
+      {/* POST POPUP */}
       {showPopup && (
         <div className="popup">
           <div className="popup-content">
             <h3>Create Post</h3>
+
             <textarea
               placeholder="What's on your mind?"
               value={text}
@@ -200,7 +178,7 @@ export function Post() {
               style={{ width: "100%", marginBottom: "10px" }}
             />
 
-            {/* Take / Choose photo buttons */}
+            {/* Buttons */}
             <div
               style={{
                 display: "flex",
@@ -240,7 +218,7 @@ export function Post() {
               </button>
             </div>
 
-            {/* Hidden input for choosing photo */}
+            {/* Hidden input */}
             <input
               id="choosePhotoInput"
               type="file"
@@ -252,7 +230,7 @@ export function Post() {
             {/* Preview */}
             {image && (
               <img
-                src={`http://localhost:4000${image}`}
+                src={image}
                 alt="preview"
                 width="100%"
                 style={{
@@ -277,7 +255,7 @@ export function Post() {
         </div>
       )}
 
-      {/* Camera modal */}
+      {/* CAMERA MODAL */}
       {showCamera && (
         <div
           className="camera-modal"
