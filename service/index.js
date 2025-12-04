@@ -112,12 +112,7 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
 apiRouter.post('/post', verifyAuth, async (req, res) => {
   try {
     const user = await findUser('token', req.cookies[authCookieName]);
-    const postData = {
-      ...req.body,
-      user: user.email,   // 👈 NEW: attach user email
-      timestamp: Date.now(),
-    };
-    console.log("postData being saved:", postData);
+    
     await DB.addPost(req.body);
     res.send(await DB.getNewPost());
   } catch (err) {
