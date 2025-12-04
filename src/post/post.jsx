@@ -9,7 +9,7 @@ export function Post() {
 
   // Load posts from backend
   useEffect(() => {
-    fetch("/api/post")
+    fetch("/api/post", {credentials: "include"})
       .then((res) => res.json())
       .then(setPosts)
       .catch(() => setPosts([]));
@@ -23,7 +23,7 @@ export function Post() {
     const formData = new FormData();
     formData.append("image", file);
 
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const res = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
     const data = await res.json();
     setImage(data.imagePath); // store server path instead of base64
   }
@@ -54,6 +54,7 @@ export function Post() {
     const newPost = { text, image };
     const res = await fetch("/api/post", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newPost),
     });

@@ -201,7 +201,6 @@ const server = app.listen(port, () => {
 
 const wss = new WebSocketServer({ server });
 app.locals.wss = wss;
-const DB = require('./database.js');
 
 wss.on('connection', async (socket, req) => {
   socket.isAlive = true;

@@ -9,7 +9,7 @@ export function Friends() {
 
   // Load your existing friend list when page opens
   useEffect(() => {
-    fetch('/api/friends')
+    fetch('/api/friends', {credentials: "include"})
       .then(res => res.json())
       .then(setFriends);
   }, []);
@@ -18,20 +18,29 @@ export function Friends() {
   useEffect(() => {
     const delay = setTimeout(() => {
       if (search.trim() !== "") {
-        fetch(`/api/users/search?q=${encodeURIComponent(search)}`)
-          .then(res => res.json())
+        fetch(`/api/users/search?q=${encodeURIComponent(search)}`, {
+          credentials: "include",
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              return [];
+            }
+            const data = await res.json();
+            return Array.isArray(data) ? data : [];
+          })
           .then(setResults)
           .catch(() => setResults([]));
       } else {
         setResults([]);
       }
-    }, 300); // debounce typing
+    }, 300);
     return () => clearTimeout(delay);
   }, [search]);
 
   const addFriend = async (friendEmail) => {
     const res = await fetch('/api/friends', {
       method: 'POST',
+      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ friendEmail })
     });
@@ -41,6 +50,7 @@ export function Friends() {
   const removeFriend = async (friendEmail) => {
     const res = await fetch('/api/friends/remove', {
       method: 'POST',
+      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ friendEmail }),
     });
