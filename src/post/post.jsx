@@ -51,15 +51,13 @@ export function Post() {
   // Submit new post
   async function handlePost() {
     if (text.trim() === "") return;
-    const newPost = { text, image };
-    const res = await fetch("/api/post", {
+    const newPost = { text, image }; 
+    await fetch("/api/post", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newPost),
     });
-    const updatedPosts = await res.json();
-    setPosts(updatedPosts);
     setText("");
     setImage(null);
     setShowPopup(false);

@@ -120,7 +120,7 @@ apiRouter.post('/post', verifyAuth, async (req, res) => {
     };
     await DB.addPost(postData);
     req.app.locals.wss.broadcastPost(postData);
-    res.send(await DB.getNewPost());
+    res.send({ ok: true });
   } catch (err) {
     console.error("Error in /post:", err);
     res.status(500).send({ error: err.message });
