@@ -112,7 +112,7 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
 
 apiRouter.post('/post', verifyAuth, async (req, res) => {
   try {
-    const user = await findUser('token', req.cookies[authCookieName]);
+    const user = await findUser('token', req.cookies.token);
     const postData = {
       ...req.body,
       user: user.email,
@@ -122,10 +122,10 @@ apiRouter.post('/post', verifyAuth, async (req, res) => {
     req.app.locals.wss.broadcastPost(postData);
     res.send({ ok: true });
   } catch (err) {
-    console.error("Error in /post:", err);
     res.status(500).send({ error: err.message });
   }
 });
+
 
 
 apiRouter.post('/friends', verifyAuth, async (req, res) => {

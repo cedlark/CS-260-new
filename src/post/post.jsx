@@ -89,7 +89,7 @@ export function Post() {
 
               {p.image && (
                 <img
-                  src={p.image}
+                  src={`http://localhost:4000${p.image}`}
                   alt="post"
                   width="300px"
                   style={{ marginTop: '8px', borderRadius: '8px' }}
