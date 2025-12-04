@@ -113,8 +113,13 @@ apiRouter.get('/post', verifyAuth, async (req, res) => {
 apiRouter.post('/post', verifyAuth, async (req, res) => {
   try {
     const user = await findUser('token', req.cookies[authCookieName]);
-    
-    await DB.addPost(req.body);
+    const postData = {
+      ...req.body,
+      user: user.email,
+      timestamp: Date.now(),
+    };
+    await DB.addPost(postData);
+    req.app.locals.wss.broadcastPost(postData);
     res.send(await DB.getNewPost());
   } catch (err) {
     console.error("Error in /post:", err);
@@ -214,7 +219,6 @@ wss.on('connection', async (socket, req) => {
       return;
     }
 
-    // When client sends authentication token
     if (msg.type === "auth") {
       const user = await DB.getUserByToken(msg.token);
 
@@ -229,7 +233,6 @@ wss.on('connection', async (socket, req) => {
   });
 });
 
-// Clean up dead connections
 setInterval(() => {
   wss.clients.forEach(client => {
     if (!client.isAlive) return client.terminate();
@@ -238,7 +241,6 @@ setInterval(() => {
   });
 }, 10000);
 
-// Helper function for broadcasting posts
 wss.broadcastPost = async function(post) {
   const friends = await DB.getFriends(post.user);
   const allowed = new Set([...friends, post.user]);

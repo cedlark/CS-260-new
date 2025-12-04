@@ -28,6 +28,26 @@ export function Post() {
     setImage(data.imagePath); // store server path instead of base64
   }
 
+  useEffect(() => {
+    const protocol = window.location.protocol === "http:" ? "ws" : "wss";
+    const ws = new WebSocket(`${protocol}://${window.location.host}`);
+  
+    ws.onopen = () => {
+      const token = document.cookie.split("=")[1];
+      ws.send(JSON.stringify({ type: "auth", token }));
+    };
+  
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+  
+      if (data.type === "post") {
+        setPosts(prev => [data.post, ...prev]);
+      }
+    };
+  
+    return () => ws.close();
+  }, []);
+  
   // Submit new post
   async function handlePost() {
     if (text.trim() === "") return;
